@@ -28,6 +28,15 @@ namespace LibraryService.WebAPI
             services.AddTransient<IBooksService,  BooksService>();
 
             services.AddDbContext<LibraryContext>(options => options.UseInMemoryDatabase("librarydb"));
+            services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
             services.AddControllers();
 
             // Add Swagger generation
@@ -61,6 +70,8 @@ namespace LibraryService.WebAPI
             }
 
             app.UseRouting();
+
+            app.UseCors("FrontendPolicy");
 
             app.UseEndpoints(endpoints =>
             {
