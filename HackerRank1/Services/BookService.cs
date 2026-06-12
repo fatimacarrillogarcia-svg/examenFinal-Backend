@@ -1,6 +1,3 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LibraryService.WebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,26 +14,33 @@ namespace LibraryService.WebAPI.Services
 
         public async Task<IEnumerable<Book>> Get(int libraryId, int[] ids)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            var query = _libraryContext.Books.AsQueryable().Where(b => b.LibraryId == libraryId);
+
+            if (ids != null && ids.Any())
+                query = query.Where(b => ids.Contains(b.Id));
+
+            return await query.ToListAsync();
         }
 
         public async Task<Book> Add(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            await _libraryContext.Books.AddAsync(book);
+            await _libraryContext.SaveChangesAsync();
+            return book;
         }
 
         public async Task<Book> Update(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            _libraryContext.Books.Update(book);
+            await _libraryContext.SaveChangesAsync();
+            return book;
         }
 
         public async Task<bool> Delete(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            _libraryContext.Books.Remove(book);
+            await _libraryContext.SaveChangesAsync();
+            return true;
         }
     }
 

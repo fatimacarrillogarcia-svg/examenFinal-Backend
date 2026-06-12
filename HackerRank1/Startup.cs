@@ -1,8 +1,8 @@
-﻿using LibraryService.WebAPI.Data;
+using HackerRank1.Services;
+using LibraryService.WebAPI.Data;
 using LibraryService.WebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,11 +23,35 @@ namespace LibraryService.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add support for Dependency Injection for internal services (BooksService and LibrariesService)
-            services.AddTransient<ILibrariesService,  LibrariesService>();
-            services.AddTransient<IBooksService,  BooksService>();
+            services.AddCors(o => o.AddPolicy("Frontend", p => p
+                .WithOrigins("http://localhost:5173", "http://localhost:3000", "https://localhost:5173", "https://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()));
 
-            services.AddDbContext<LibraryContext>(options => options.UseInMemoryDatabase("librarydb"));
+            services.AddTransient<ILibrariesService, LibrariesService>();
+            services.AddTransient<IBooksService, BooksService>();
+            services.AddScoped<IFraudService, FraudService>();
+
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
+            if (!string.IsNullOrWhiteSpace(connectionString))
+            {
+                services.AddDbContextPool<LibraryContext>(options =>
+                    options.UseNpgsql(connectionString, npgsqlOptions =>
+                    {
+                        npgsqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 1,
+                            maxRetryDelay: TimeSpan.FromSeconds(5),
+                            errorCodesToAdd: null);
+                    }),
+                    poolSize: 20);
+            }
+            else
+            {
+                services.AddDbContext<LibraryContext>(options =>
+                    options.UseInMemoryDatabase("LibraryServiceDb"));
+            }
+
             services.AddControllers();
 
             // Add Swagger generation
@@ -60,7 +84,26 @@ namespace LibraryService.WebAPI
                 });
             }
 
+
+
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
+                var provider = db.Database.ProviderName ?? string.Empty;
+
+                if (provider.Contains("Npgsql", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    db.Database.Migrate();
+                }
+                else
+                {
+                    db.Database.EnsureCreated();
+                }
+            }
+
             app.UseRouting();
+
+            app.UseCors("Frontend");
 
             app.UseEndpoints(endpoints =>
             {
