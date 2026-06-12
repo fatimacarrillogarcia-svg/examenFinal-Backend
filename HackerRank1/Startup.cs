@@ -1,3 +1,4 @@
+using System;
 using HackerRank1.Services;
 using LibraryService.WebAPI.Data;
 using LibraryService.WebAPI.Services;
@@ -20,7 +21,6 @@ namespace LibraryService.WebAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(o => o.AddPolicy("Frontend", p => p
@@ -52,22 +52,8 @@ namespace LibraryService.WebAPI
                     options.UseInMemoryDatabase("LibraryServiceDb"));
             }
 
-<<<<<<< HEAD
-            services.AddDbContext<LibraryContext>(options => options.UseInMemoryDatabase("librarydb"));
-            services.AddCors(options =>
-            {
-                options.AddPolicy("FrontendPolicy", policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyHeader()
-                          .AllowAnyMethod();
-                });
-            });
-=======
->>>>>>> 786e1f862257c28bd0a32b65a69c11fd44345073
             services.AddControllers();
 
-            // Add Swagger generation
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -79,32 +65,24 @@ namespace LibraryService.WebAPI
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
                 app.UseSwagger();
-
-                // Enable middleware to serve swagger-ui, specifying the Swagger JSON endpoint.
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LibraryService API v1");
                 });
             }
 
-
-
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
                 var provider = db.Database.ProviderName ?? string.Empty;
 
-                if (provider.Contains("Npgsql", System.StringComparison.OrdinalIgnoreCase))
+                if (provider.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
                 {
                     db.Database.Migrate();
                 }
@@ -115,12 +93,7 @@ namespace LibraryService.WebAPI
             }
 
             app.UseRouting();
-
-<<<<<<< HEAD
-            app.UseCors("FrontendPolicy");
-=======
             app.UseCors("Frontend");
->>>>>>> 786e1f862257c28bd0a32b65a69c11fd44345073
 
             app.UseEndpoints(endpoints =>
             {

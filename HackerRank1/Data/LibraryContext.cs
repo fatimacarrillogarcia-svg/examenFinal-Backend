@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,27 +12,7 @@ namespace LibraryService.WebAPI.Data
 
         public DbSet<Library> Libraries { get; set; }
         public DbSet<Book> Books { get; set; }
-<<<<<<< HEAD
-        public DbSet<FraudReport> FraudReports { get; set; }
-=======
         public DbSet<Fraud> Frauds { get; set; }
-    }
-
-    public class Fraud
-    {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        public string ImpostorDetails { get; set; } = string.Empty;
-
-        [Required]
-        public string ContactInfo { get; set; } = string.Empty;
-
-        public string? Comments { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
->>>>>>> 786e1f862257c28bd0a32b65a69c11fd44345073
     }
 
     public class Book
@@ -58,7 +38,7 @@ namespace LibraryService.WebAPI.Data
         public string Location { get; set; }
     }
 
-    public class FraudReport
+    public class Fraud
     {
         [Key]
         public int Id { get; set; }
@@ -69,7 +49,7 @@ namespace LibraryService.WebAPI.Data
         [Required]
         public string ContactInfo { get; set; } = string.Empty;
 
-        public string Comments { get; set; } = string.Empty;
+        public string? Comments { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
