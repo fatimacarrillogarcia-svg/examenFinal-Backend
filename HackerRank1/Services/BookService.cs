@@ -24,20 +24,23 @@ namespace LibraryService.WebAPI.Services
 
         public async Task<Book> Add(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            await _libraryContext.Books.AddAsync(book);
+            await _libraryContext.SaveChangesAsync();
+            return book;
         }
 
         public async Task<Book> Update(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            _libraryContext.Books.Update(book);
+            await _libraryContext.SaveChangesAsync();
+            return book;
         }
 
         public async Task<bool> Delete(Book book)
         {
-            // Complete the implementation
-            throw new NotImplementedException();
+            _libraryContext.Books.Remove(book);
+            await _libraryContext.SaveChangesAsync();
+            return true;
         }
     }
 
